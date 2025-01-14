@@ -31,4 +31,8 @@ jobs:
 
             - name: Run tests
               working-directory: ./backend
+              run: go test ./...
+
+            - name: Create test report
+              working-directory: ./backend
               run: go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out -o coverage.html
