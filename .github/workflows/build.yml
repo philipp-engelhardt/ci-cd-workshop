@@ -30,7 +30,7 @@ jobs:
 
     - name: Build Go  
       run: |
-        cd ./backend
+        cd ../backend
         go run .
         ls -R
 
