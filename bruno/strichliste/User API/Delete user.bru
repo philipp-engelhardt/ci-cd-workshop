@@ -1,0 +1,15 @@
+meta {
+  name: Delete user
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{STRICHLISTE_URL}}/api/user/{{uuid}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  uuid: c68f0f1b-e07e-416e-a321-1614188f258c
+}

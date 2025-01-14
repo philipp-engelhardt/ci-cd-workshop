@@ -1,0 +1,13 @@
+# test coverage reports
+coverage.html
+coverage.out
+
+# trivy reports
+report.html
+
+# angular build result used for embedding
+backend/cmd/strichliste/frontendDist
+
+# binaries
+backend/main
+backend/strichliste
