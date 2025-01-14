@@ -29,9 +29,10 @@ jobs:
         node-version: '18' 
 
     - name: Build Go  
-      run: 
+      run: |
         cd backend
-        go run ./...
+        go get .
+        ls -R
 
     - name: Install dependencies
       run: 
