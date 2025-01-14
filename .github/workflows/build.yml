@@ -19,15 +19,15 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21.x'
-      - name: Change to backend directory
-        working-directory: root/backend
-        run: echo "Switched to root/backend"
       - name: Install dependencies
-        working-directory: root/backend
-        run: go get .
+        run: |
+          cd root/backend
+          go get .
       - name: Build
-        working-directory: root/backend
-        run: go build -v ./...
+        run: |
+          cd root/backend
+          go build -v ./...
       - name: Test with the Go CLI
-        working-directory: root/backend
-        run: go test
+        run: |
+          cd root/backend
+          go test
