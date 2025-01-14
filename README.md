@@ -134,4 +134,4 @@ trivy fs --format template --output ./trivy-scan.html --template "@./trivy-html-
 ```
 # Pallpline
 
-![Pallpline](https://github.com/philipp-engelhardt/pallpline/actions/workflows/build.yaml/badge.svg)
+[![Pallpline](https://github.com/philipp-engelhardt/pallpline/actions/workflows/build.yml/badge.svg?branch=main&event=push)](https://github.com/philipp-engelhardt/pallpline/actions/workflows/build.yml)
