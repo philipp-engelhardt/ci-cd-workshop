@@ -36,9 +36,6 @@ jobs:
             - name: Create test report
               working-directory: ./backend
               run: go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out -o coverage.html
-            
-            - name: Show all
-              run: ls -a
 
             - name: Setup SSH
               run: |
@@ -53,3 +50,6 @@ jobs:
                 echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
               env: 
                 SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
+            - name: Push test coverage report
+              run: scp backend/coverage.html group10@hoenle.xyz:/var/www/group10/coverage.html
