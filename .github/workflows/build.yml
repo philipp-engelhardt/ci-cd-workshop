@@ -39,3 +39,17 @@ jobs:
             
             - name: Show all
               run: ls -a
+
+            - name: Setup SSH
+              run: |
+                # setup / start ssh auth socket which manages our ssh keys when connecting to other servers via ssh
+                ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+                # load the private key
+                mkdir ~/.ssh
+                chmod 700 ~/.ssh
+                echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+                chmod 600 ~/.ssh/id_ed25519
+                # setup known hosts
+                echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+              env: 
+                SSH_AUTH_SOCK: /tmp/ssh_agent.sock
