@@ -1,0 +1,15 @@
+meta {
+  name: Get user
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{STRICHLISTE_URL}}/api/user/{{uuid}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  uuid: 165dd754-ac46-4cb8-856b-b57ff0db6684
+}
