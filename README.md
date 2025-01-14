@@ -132,4 +132,6 @@ go run ./cmd/smoketest/ --base-url http://localhost:9000
 # run security scan with trivy, will produce report in html format (trivy-scan.html)
 trivy fs --format template --output ./trivy-scan.html --template "@./trivy-html-report-template.tpl" .
 ```
+# Pallpline
 
+![Pallpline](https://github.com/philipp-engelhardt/ci-cd-workshop/actions/workflows/build.yaml/badge.svg)
