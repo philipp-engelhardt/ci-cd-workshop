@@ -1,33 +1,43 @@
-name: CI-CD-Workshop
+name: CI Pipeline
 
 on:
   push:
     branches:
       - main
-      - release/*
+      - master
   pull_request:
     branches:
       - main
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21.x'
-      - name: Install dependencies
-        run: |
-          cd root/backend
-          go get .
-      - name: Build
-        run: |
-          cd root/backend
-          go build -v ./...
-      - name: Test with the Go CLI
-        run: |
-          cd root/backend
-          go test
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.19'
+
+    - name: Run Unit Tests
+      run: go test ./...
+
+    - name: Check Code Formatting
+      run: go fmt ./...
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' 
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Linter
+      run: npm run lint 
+
+  
