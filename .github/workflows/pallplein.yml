@@ -8,6 +8,9 @@ jobs:
   trivy-scan:
     runs-on: ubuntu-latest
     steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+  
         - name: Run Trivy vulnerability scanner
           uses: aquasecurity/trivy-action@0.29.0
           with: 
@@ -21,7 +24,7 @@ jobs:
           uses: actions/upload-artifact@v4
           with:
             name: trivy-scan-report
-            path: ./trivy-scan.html
+            path: ./trivy-scan-report.html
             retention-days: 14
       
         - name: Deploy code coverage report to webserver
