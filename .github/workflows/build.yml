@@ -116,22 +116,6 @@ jobs:
         with: 
           name: test-coverage-report
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.29.0
-        with: 
-          scan-type: "fs"
-          scan-ref: .
-          format: 'template'
-          template: '@./trivy-html-report-template.tpl'
-          output: 'trivy-scan.html'
-
-      - name: Upload trivy scan report
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-scan-report
-          path: ./trivy-scan.html
-          retention-days: 14
-          
       - name: Deploy code coverage report to webserver
         run: scp coverage.html ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/group10/coverage.html
 
