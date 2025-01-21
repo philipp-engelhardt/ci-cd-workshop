@@ -1,55 +1,121 @@
-name: Pallpline
+name: "Pallpline"
 
 on:
-    push:
-        branches:
-        - main
-    pull_request:
-        branches:
-        - main
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Attention: you want to put version numbers like this in quotes! 
+  # Else they will maybe interpreted as a number, which will e.g. remove traling zeros.
+  GO_VERSION: "1.23.4"
+  NODE_VERSION: "22.11.0"
+  CONTAINER_IMAGE_NAME: "ghcr.io/rubenhoenle/ci-cd-lecture-project-template"
+  CONTAINER_IMAGE_TAG: "latest"
+
 jobs:
-    tests:
-        name: Tests
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+  code-format:
+    name: "Check code format"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Install go
-              uses: actions/setup-go@v5
-              with:
-                  go-version: ${{ env.GO_VERSION }}
-                
-            - name: Install node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: ${{ env.NODE_VERSION }}
+      - name: Install golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
 
-            - name: Build frontend
-              working-directory: ./frontend
-              run: npm ci && npx ng build && cp -r dist/frontend/browser ../backend/cmd/strichliste/frontendDist
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '${{ env.NODE_VERSION }}'
 
-            - name: Run tests
-              working-directory: ./backend
-              run: go test ./...
+      - name: Check code format (backend)
+        run: files=$(gofmt -l ./backend) && [ -z "$files" ]
 
-            - name: Create test report
-              working-directory: ./backend
-              run: go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out -o coverage.html
+      - name: Install npm dependencies
+        working-directory: ./frontend
+        run: npm ci
+      
+      - name: Check code format (frontend)
+        working-directory: ./frontend
+        run: npx prettier --check .
 
-            - name: Setup SSH
-              run: |
-                # setup / start ssh auth socket which manages our ssh keys when connecting to other servers via ssh
-                ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-                # load the private key
-                mkdir ~/.ssh
-                chmod 700 ~/.ssh
-                echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-                chmod 600 ~/.ssh/id_ed25519
-                # setup known hosts
-                echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-              env: 
-                SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+  backend:
+    name: "Backend"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Push test coverage report
-              run: scp backend/coverage.html group10@hoenle.xyz:/var/www/group10/coverage.html
+      - name: Install golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '${{ env.NODE_VERSION }}'
+      
+      - name: Install npm dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npx ng build
+
+      - name: Copy frontend build result
+        run: cp -r frontend/dist/frontend/browser backend/cmd/strichliste/frontendDist
+      
+      - name: Run backend unit tests
+        working-directory: ./backend
+        run: go test ./...
+
+      - name: Create test coverage report
+        working-directory: ./backend
+        run: go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out -o coverage.html
+
+      - name: Upload test coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-report
+          path: ./backend/coverage.html
+          retention-days: 14
+
+  deploy:
+    name: "Deploy"
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_name == 'main' }}
+    needs: [backend]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          # setup / start ssh auth socket which manages our ssh keys when connecting to other servers via ssh
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          # load the private key
+          mkdir ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-add ~/.ssh/id_ed25519
+          # setup known hosts
+          # FYI: SSH_KNOWN_HOSTS secret stores the result of 'ssh-keyscan remote-server.com'
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
+      - name: Download test coverage report
+        uses: actions/download-artifact@v4
+        with: 
+          name: test-coverage-report
+
+      - name: Deploy code coverage report to webserver
+        run: scp coverage.html ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/demo/coverage.html
+
