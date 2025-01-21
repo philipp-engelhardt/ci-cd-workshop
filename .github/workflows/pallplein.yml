@@ -8,11 +8,6 @@ jobs:
   trivy-scan:
     runs-on: ubuntu-latest
     steps:
-        - name: Download test coverage report
-          uses: actions/download-artifact@v4
-          with: 
-            name: test-coverage-report
-
         - name: Run Trivy vulnerability scanner
           uses: aquasecurity/trivy-action@0.29.0
           with: 
@@ -30,5 +25,5 @@ jobs:
             retention-days: 14
       
         - name: Deploy code coverage report to webserver
-          run: scp trivy-scan-report.html ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/group10/trivy-scan-report
+          run: scp trivy-scan-report.html ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/group10/trivy-scan-report.html
                 
