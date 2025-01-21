@@ -17,6 +17,24 @@ git remote set-url origin git@github.com:yourusername/reponame.git
 git push
 ```
 
+## Updating the repo after creation
+```bash
+# add second git remote ('origin' remote should be your GitHub repo)
+git remote add upstream https://github.com/rubenhoenle/template.git
+
+# fetch the latest changes from the new git remote
+git fetch upstream
+
+# check out your default branch
+git checkout main
+
+# rebase against the upstream "template" repository
+git rebase upstream/main
+
+# check everything, then push your changes
+git push -f
+```
+
 ## Usage
 
 The app will run on port 8080. 
@@ -94,4 +112,24 @@ cd frontend; npx prettier --check .
 files=$(gofmt -l ./backend) && [ -z "$files" ]
 ```
 
+### Smoke testing
+
+To run the smoke tests, you will have to start an instance of the software first (native or via docker).
+
+```bash
+# run smoke tests on default url (http://localhost:8080)
+cd backend
+go run ./cmd/smoketest/
+
+# run smoke test with url param
+cd backend
+go run ./cmd/smoketest/ --base-url http://localhost:9000
+```
+
+### Security scan
+
+```bash
+# run security scan with trivy, will produce report in html format (trivy-scan.html)
+trivy fs --format template --output ./trivy-scan.html --template "@./trivy-html-report-template.tpl" .
+```
 
