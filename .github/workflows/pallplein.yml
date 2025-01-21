@@ -1,23 +1,29 @@
-name: "Pallpline"
-
+name: Trivy Dependency Scan
 on:
+  schedule:
+    - cron: '0 0 * * *'  # Läuft täglich um Mitternacht
+  workflow_dispatch: # Ermöglicht manuelle Ausführung
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.29.0
-        with: 
-          scan-type: "fs"
-          scan-ref: .
-          format: 'template'
-          template: '@./trivy-html-report-template.tpl'
-          output: 'trivy-scan.html'
-
-      - name: Upload trivy scan report
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-scan-report
-          path: ./trivy-scan.html
-          retention-days: 14
-
-      - name: Deploy code coverage report to webserver
-        run: scp trivy-scan-report.html ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/group10/trivy-scan-report
-          
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Run Trivy vulnerability scanner
+          uses: aquasecurity/trivy-action@0.29.0
+          with: 
+            scan-type: "fs"
+            scan-ref: .
+            format: 'template'
+            template: '@./trivy-html-report-template.tpl'
+            output: 'trivy-scan.html'
+      
+        - name: Upload trivy scan report
+          uses: actions/upload-artifact@v4
+          with:
+            name: trivy-scan-report
+            path: ./trivy-scan.html
+            retention-days: 14
+      
+        - name: Deploy code coverage report to webserver
+          run: scp trivy-scan-report.html ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/group10/trivy-scan-report
+                
