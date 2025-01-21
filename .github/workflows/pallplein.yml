@@ -18,7 +18,7 @@ jobs:
             scan-ref: .
             format: 'template'
             template: '@./trivy-html-report-template.tpl'
-            output: 'trivy-scan.html'
+            output: 'trivy-scan-report.html'
       
         - name: Upload trivy scan report
           uses: actions/upload-artifact@v4
