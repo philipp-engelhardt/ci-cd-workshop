@@ -96,6 +96,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup SSH
+        if: github.actor != 'dependabot[bot]'
         run: |
           # setup / start ssh auth socket which manages our ssh keys when connecting to other servers via ssh
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
@@ -117,5 +118,6 @@ jobs:
           name: test-coverage-report
 
       - name: Deploy code coverage report to webserver
+        if: github.actor != 'dependabot[bot]'
         run: scp coverage.html ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/group10/coverage.html
 
