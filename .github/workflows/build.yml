@@ -102,7 +102,7 @@ jobs:
           # load the private key
           mkdir ~/.ssh
           chmod 700 ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-add ~/.ssh/id_ed25519
           # setup known hosts
