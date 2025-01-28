@@ -1,4 +1,4 @@
-from docker.io/node:22.11.0 AS node-builder
+FROM docker.io/node:22.11.0 AS node-builder
 COPY ./frontend /frontend
 WORKDIR /frontend
 RUN npm ci
