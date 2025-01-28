@@ -11,6 +11,6 @@ WORKDIR /backend
 RUN CGO_ENABLED=0 go build -o ./strichliste ./cmd/strichliste/main.go
 
 FROM gcr.io/distroless/static-debian12 AS endstage
-COPY --from=go-builder /backend/strichliste /app
+COPY --from=go-builder /backend/strichliste /strichliste
 EXPOSE 8080
 ENTRYPOINT [ "/strichliste" ]
