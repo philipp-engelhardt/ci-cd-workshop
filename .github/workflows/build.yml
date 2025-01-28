@@ -17,9 +17,9 @@ env:
 jobs:
   example_matrix:
     strategy:
-      max-parallel: 2
+      fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [darwin, windows, ubuntu]
         arch: [arm64, amd64]
     runs-on: ubuntu-latest
     steps:
