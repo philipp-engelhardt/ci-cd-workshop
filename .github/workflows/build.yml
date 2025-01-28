@@ -92,13 +92,46 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        id: build_image
+        with:
+          push: false  # Don't push yet, we will push after tests
+          tags: ghcr.io/philipp-engelhardt/pallpline:latest
 
-      - name: Build and push
+      - name: Start container
+        run: |
+          docker run -d --rm -p 8080:8080 --name test_container ghcr.io/philipp-engelhardt/pallpline:latest
+        env:
+          DOCKER_BUILDKIT: 1
+
+      - name: Wait for container to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8080 > /dev/null; then
+              echo "Container is ready."; exit 0;
+            fi
+            echo "Waiting for container..."; sleep 2;
+          done
+          echo "Container did not become ready in time."; exit 1
+
+      - name: Run smoke tests
+        run: |
+          cd backend
+          go run ./cmd/smoketest/
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop test_container
+
+      - name: Push Docker image
+        if: success()
         uses: docker/build-push-action@v6
         with:
-          push: ${{github.ref_name == 'main'}}
+          push: true
           tags: ghcr.io/philipp-engelhardt/pallpline:latest
-          secrets: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: "Deploy"
