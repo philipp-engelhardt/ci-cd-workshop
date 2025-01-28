@@ -85,6 +85,20 @@ jobs:
           name: test-coverage-report
           path: ./backend/coverage.html
           retention-days: 14
+          
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: ${{github.ref_name == 'main'}}
+          tags: ghcr.io/philipp-engelhardt/pallpline:latest
+          secrets: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     name: "Deploy"
